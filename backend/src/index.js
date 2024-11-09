@@ -1,5 +1,4 @@
 import express from 'express'
-import mongoose from 'mongoose';
 import router from './routes/index.js'
 import 'dotenv/config';
 import morgan from 'morgan';
@@ -20,19 +19,7 @@ app.use(morgan('tiny'))
 app.use(cookieParser())
 app.use('/api/v1', router)
 
-async function connectDB() {
-    try {
-        await mongoose.connect(process.env.MONGO || " ");
-        console.log("DB connected")
-    }
-    catch (e) {
-        console.log(e)
-        process.exit(1);
-    }
-}
-
 app.listen(port, () => {
-    connectDB();
     console.log(`Server is running at port ${port}`);
 })
 

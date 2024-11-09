@@ -1,11 +1,11 @@
 import Router from 'express'
 import bycrpt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-
+import { PrismaClient } from "@prisma/client";
 import { registerBody } from '../../zod/registerBody.js';
-import User from '../../db/userRegistration.js'
 import { loginBody } from '../../zod/loginBody.js';
 
+const prisma = new PrismaClient();
 const authRouter = Router();
 
 authRouter.post('/register', async (req, res) => {
@@ -17,8 +17,13 @@ authRouter.post('/register', async (req, res) => {
         })
     }
 
-    const existingUser = await User.findOne({
-        username: req.body.username
+    const existingUser = await prisma.user.findFirst({
+        where: {
+            OR: [
+                { username: data.username },
+                { email: data.email }
+            ]
+        }
     })
 
     if (existingUser) {
@@ -28,17 +33,19 @@ authRouter.post('/register', async (req, res) => {
     }
 
     try {
-        const hash = await bycrpt.hash(req.body.password, 11);
-        const user = await User.create({
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            username: req.body.username,
-            password: hash
+        const hash = await bycrpt.hash(data.password, 11);
+        const user = await prisma.user.create({
+            data: {
+                email: data.email,
+                name: data.name,
+                username: data.username,
+                password: hash
+            }
         })
 
         const payload = {
             username: user.username,
-            userId: user._id
+            userId: user.id
         }
 
         const token = jwt.sign(payload, process.env.JWT_PASSWORD);
