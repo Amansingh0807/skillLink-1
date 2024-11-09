@@ -76,8 +76,13 @@ authRouter.post('/login', async (req, res) => {
         })
     }
     try {
-        const existingUser = await User.findOne({
-            username: req.body.username
+        const existingUser = await prisma.user.findFirst({
+            where: {
+                OR: [
+                    { username: data.username },
+                    { email: data.email }
+                ]
+            }
         })
 
         if (!existingUser) {
@@ -86,7 +91,7 @@ authRouter.post('/login', async (req, res) => {
             });
         }
 
-        const passwordVerify = await bycrpt.compare(req.body.password, existingUser.password);
+        const passwordVerify = await bycrpt.compare(data.password, existingUser.password);
         if (!passwordVerify) {
             return res.status(403).json({
                 error: "Invalid credentials"
@@ -95,7 +100,7 @@ authRouter.post('/login', async (req, res) => {
 
         const payLoad = {
             username: existingUser.username,
-            userID: existingUser._id
+            userID: existingUser.id
 
         }
         const token = jwt.sign(payLoad, process.env.JWT_PASSWORD);
