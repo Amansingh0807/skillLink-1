@@ -6,7 +6,7 @@ export default function auth(req, res, next) {
 
     if (!authHeader) {
         return res.status(401).json({
-            msg: "Not valid form of token"
+            error: "No auth token found! , Login again"
         });
     }
 
