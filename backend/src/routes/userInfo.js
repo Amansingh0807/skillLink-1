@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import Router from 'express'
 import { userInfoBody } from '../../zod/userInfoBody.js';
+import { error } from 'console';
 
 const userInfoRouter = Router()
 const prisma = new PrismaClient();
@@ -39,6 +40,29 @@ userInfoRouter.post('/add', async (req, res) => {
         })
     }
 
+})
+
+userInfoRouter.get('/profile', async (req, res) => {
+    try {
+        const userInfo = await prisma.user.findFirst({
+            where: {
+                id: req.userId,
+            },
+            select: {
+                username: true,
+                email: true,
+                name: true,
+                profile: true
+            }
+        })
+        return res.status(200).json({
+            data: userInfo
+        })
+    } catch (err) {
+        return res.status(500).json({
+            error: err.message || err.toString()
+        })
+    }
 })
 
 export default userInfoRouter;
