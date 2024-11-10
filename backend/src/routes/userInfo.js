@@ -1,7 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import Router from 'express'
 import { userInfoBody } from '../../zod/userInfoBody.js';
-import { error } from 'console';
 
 const userInfoRouter = Router()
 const prisma = new PrismaClient();
