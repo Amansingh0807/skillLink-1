@@ -21,6 +21,8 @@ model User{
  password String
  profile Profile?
  post Post[]
+ job Job[]
+ comments  Comment[] @relation("UserComments")
 }
 model Profile{
   id Int @id @default(autoincrement())
@@ -34,6 +36,42 @@ model Post{
   id Int @id @default(autoincrement())
   desc String @db.VarChar(255)
   contentType String[] @db.VarChar(10) 
+  like Int
+  comment Comment[]
   authorId  Int
   User User @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+model Comment {
+  id          Int       @id @default(autoincrement())
+  desc        String    @db.VarChar(255)
+  like        Int
+  authorId    Int
+  postId      Int
+  parentId    Int?      // Reference to the parent comment (nullable for top-level comments)
+
+  Post        Post      @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Author      User      @relation("UserComments",fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Parent      Comment?  @relation("CommentReplies", fields: [parentId], references: [id]) // Self-referencing relation
+
+  // This relation allows the comment to have multiple replies
+  replies     Comment[] @relation("CommentReplies")
+}
+model Job {
+  id          Int       @id @default(autoincrement())
+  title       String    @db.VarChar(100)
+  description String    @db.Text
+  location    String    @db.VarChar(100)
+  jobType     JobType   
+  salary      Float?
+  postedAt    DateTime  @default(now())
+  isActive    Boolean   @default(true)
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERN
 }
