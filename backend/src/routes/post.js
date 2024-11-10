@@ -37,6 +37,36 @@ postRouter.post('/add', async (req, res) => {
     }
 })
 
+
+postRouter.get('/all', async (req, res) => {
+    try {
+        const post = await prisma.post.findMany({
+            where: {
+                authorId: req.userId
+            },
+            select: {
+                desc: true,
+                like: true,
+                comment: true,
+                contentType: true,
+                User: {
+                    select: {
+                        username: true,
+                        id: true,
+                    }
+                }
+            }
+        })
+        return res.status(200).json({
+            post: post
+        })
+    } catch (err) {
+        return res.status(500).json({
+            error: err.message || err.toString()
+        })
+    }
+})
+
 postRouter.get('/all-posts', async (req, res) => {
     try {
         const post = await prisma.post.findMany({
