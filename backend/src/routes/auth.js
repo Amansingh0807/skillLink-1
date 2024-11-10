@@ -9,30 +9,30 @@ const prisma = new PrismaClient();
 const authRouter = Router();
 
 authRouter.post('/register', async (req, res) => {
-    const { data } = registerBody.safeParse(req.body);
-
-    if (!data) {
-        return res.status(411).json({
-            error: "Fill all data/ Incorrect data type"
-        })
-    }
-
-    const existingUser = await prisma.user.findFirst({
-        where: {
-            OR: [
-                { username: data.username },
-                { email: data.email }
-            ]
-        }
-    })
-
-    if (existingUser) {
-        return res.status(403).json({
-            error: "user already exist"
-        });
-    }
 
     try {
+        const { data } = registerBody.safeParse(req.body);
+
+        if (!data) {
+            return res.status(411).json({
+                error: "Fill all data/ Incorrect data type"
+            })
+        }
+
+        const existingUser = await prisma.user.findFirst({
+            where: {
+                OR: [
+                    { username: data.username },
+                    { email: data.email }
+                ]
+            }
+        })
+
+        if (existingUser) {
+            return res.status(403).json({
+                error: "user already exist"
+            });
+        }
         const hash = await bycrpt.hash(data.password, 11);
         const user = await prisma.user.create({
             data: {
@@ -68,14 +68,15 @@ authRouter.post('/register', async (req, res) => {
 })
 
 authRouter.post('/login', async (req, res) => {
-    const { data } = loginBody.safeParse(req.body);
 
-    if (!data) {
-        return res.status(411).json({
-            error: "Fill all data/ Incorrect data type"
-        })
-    }
     try {
+        const { data } = loginBody.safeParse(req.body);
+
+        if (!data) {
+            return res.status(411).json({
+                error: "Fill all data/ Incorrect data type"
+            })
+        }
         const existingUser = await prisma.user.findFirst({
             where: {
                 OR: [
