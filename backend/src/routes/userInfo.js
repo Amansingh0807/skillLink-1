@@ -27,6 +27,7 @@ userInfoRouter.post('/add', async (req, res) => {
             create: {
                 bio: bio,
                 skills: skill,
+                profilePic: null,
                 userId: req.userId
             }
         })
@@ -41,6 +42,25 @@ userInfoRouter.post('/add', async (req, res) => {
 
 })
 
+userInfoRouter.post('/addpfp', async (req, res) => {
+    try {
+        await prisma.profile.update({
+            where: {
+                userId: req.userId
+            },
+            data: {
+                profilePic: req.body.profilePic
+            }
+        })
+        res.status(200).json({
+            msg: "Profile pic added successfully"
+        })
+    } catch (err) {
+        return res.status(500).json({
+            error: err.message || err.toString()
+        })
+    }
+})
 userInfoRouter.get('/profile', async (req, res) => {
     try {
         const userInfo = await prisma.user.findFirst({
