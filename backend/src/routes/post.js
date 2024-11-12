@@ -1,6 +1,8 @@
 import Router from "express";
 import { postBody } from "../../zod/postBody.js";
 import { PrismaClient } from "@prisma/client";
+import { date } from "zod";
+import { commentBody } from "../../zod/commentBody.js";
 
 const postRouter = Router()
 const prisma = new PrismaClient()
@@ -39,7 +41,6 @@ postRouter.post('/add', async (req, res) => {
 
 postRouter.get('/postid/:postId', async (req, res) => {
     try {
-        console.log(req.params.postId)
         const postid = Number(req.params.postId)
         const post = await prisma.post.findFirst({
             where: {
@@ -89,8 +90,8 @@ postRouter.get('/all', async (req, res) => {
                 id: true,
                 desc: true,
                 like: true,
-                comment: true,
                 contentType: true,
+                comment: true,
                 User: {
                     select: {
                         username: true,
@@ -145,6 +146,47 @@ postRouter.get('/all-posts', async (req, res) => {
         })
     }
 })
+
+postRouter.post('/addcomment', async (req, res) => {
+
+    try {
+        const parseResult = commentBody.safeParse(req.body);
+
+        if (!parseResult.success) {
+            return res.status(400).json({
+                error: "Incorrect data type"
+            });
+        }
+        const { desc, postId } = parseResult.data;
+
+        const post = await prisma.post.findUnique({ where: { id: postId } });
+        if (!post) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+        const author = await prisma.user.findUnique({ where: { id: req.userId } });
+        if (!author) {
+            return res.status(404).json({ error: 'Author not found' });
+        }
+
+        await prisma.comment.create({
+            data: {
+                desc,
+                authorId: req.userId,
+                like: 0,
+                postId,
+            },
+
+        });
+
+        return res.status(200).json({
+            msg: 'Comment added successfully'
+        });
+    } catch (err) {
+        return res.status(500).json({
+            error: err.message || err.toString()
+        })
+    }
+});
 
 
 
