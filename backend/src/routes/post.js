@@ -189,5 +189,43 @@ postRouter.post('/addcomment', async (req, res) => {
 });
 
 
+postRouter.get('/comments/:postId', async (req, res) => {
+    const postid = Number(req.params.postId);
+    try {
+        const comment = await prisma.comment.findMany({
+            where: {
+                postId: postid
+            },
+            select: {
+                desc: true,
+                like: true,
+                authorId: true,
+                Author: {
+                    select: {
+                        id: true,
+                        username: true,
+                        profile: {
+                            select: {
+                                profilePic: true
+                            }
+                        }
+                    }
+                }
+            }
+        })
+        if (comment.length <= 0) {
+            return res.status(200).json({
+                comment: "No comments"
+            });
+        }
+        return res.status(200).json({
+            comment: comment
+        });
+    } catch (err) {
+        return res.status(500).json({
+            error: err.message || err.toString()
+        })
+    }
+})
 
 export default postRouter;
