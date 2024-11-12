@@ -37,14 +37,16 @@ postRouter.post('/add', async (req, res) => {
     }
 })
 
-
-postRouter.get('/all', async (req, res) => {
+postRouter.get('/postid/:postId', async (req, res) => {
     try {
-        const post = await prisma.post.findMany({
+        console.log(req.params.postId)
+        const postid = Number(req.params.postId)
+        const post = await prisma.post.findFirst({
             where: {
-                authorId: req.userId
+                id: postid
             },
             select: {
+                id: true,
                 desc: true,
                 like: true,
                 comment: true,
@@ -53,6 +55,51 @@ postRouter.get('/all', async (req, res) => {
                     select: {
                         username: true,
                         id: true,
+                        profile: {
+                            select: {
+                                profilePic: true
+                            }
+                        }
+                    }
+                }
+            }
+        })
+        if (post == null) {
+            return res.status(200).json({
+                post: "No post"
+            })
+        }
+        return res.status(200).json({
+            post: post
+        })
+    } catch (err) {
+        return res.status(500).json({
+            error: err.message || err.toString()
+        })
+    }
+})
+
+postRouter.get('/all', async (req, res) => {
+    try {
+        const post = await prisma.post.findMany({
+            where: {
+                authorId: req.userId
+            },
+            select: {
+                id: true,
+                desc: true,
+                like: true,
+                comment: true,
+                contentType: true,
+                User: {
+                    select: {
+                        username: true,
+                        id: true,
+                        profile: {
+                            select: {
+                                profilePic: true
+                            }
+                        }
                     }
                 }
             }
@@ -71,6 +118,7 @@ postRouter.get('/all-posts', async (req, res) => {
     try {
         const post = await prisma.post.findMany({
             select: {
+                id: true,
                 desc: true,
                 like: true,
                 comment: true,
@@ -79,6 +127,11 @@ postRouter.get('/all-posts', async (req, res) => {
                     select: {
                         username: true,
                         id: true,
+                        profile: {
+                            select: {
+                                profilePic: true
+                            }
+                        }
                     }
                 }
             }
@@ -92,5 +145,7 @@ postRouter.get('/all-posts', async (req, res) => {
         })
     }
 })
+
+
 
 export default postRouter;
