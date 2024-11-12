@@ -1,7 +1,6 @@
 import Router from "express";
 import { postBody } from "../../zod/postBody.js";
 import { PrismaClient } from "@prisma/client";
-import { date } from "zod";
 import { commentBody } from "../../zod/commentBody.js";
 
 const postRouter = Router()
@@ -187,7 +186,6 @@ postRouter.post('/addcomment', async (req, res) => {
         })
     }
 });
-
 
 postRouter.get('/comments/:postId', async (req, res) => {
     const postid = Number(req.params.postId);
