@@ -1,6 +1,7 @@
 import Router from "express";
 import { postBody } from "../../zod/postBody.js";
 import { PrismaClient } from "@prisma/client";
+import auth from '../../middleware/auth.js';
 import { commentBody } from "../../zod/commentBody.js";
 
 const postRouter = Router()
