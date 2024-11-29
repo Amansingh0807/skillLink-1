@@ -8,7 +8,7 @@ const router = Router()
 
 router.use('/user/auth', authRouter);
 router.use('/user/info', auth, userInfoRouter)
-router.use('/user/post', auth, postRouter)
+router.use('/user/post', postRouter)
 router.use('/user/job', auth, jobRouter)
 
 

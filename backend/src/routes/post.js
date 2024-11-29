@@ -6,7 +6,7 @@ import { commentBody } from "../../zod/commentBody.js";
 const postRouter = Router()
 const prisma = new PrismaClient()
 
-postRouter.post('/add', async (req, res) => {
+postRouter.post('/add', auth, async (req, res) => {
     try {
         const parseResult = postBody.safeParse(req.body);
 
@@ -150,7 +150,7 @@ postRouter.get('/all-posts', async (req, res) => {
     }
 })
 
-postRouter.post('/addcomment', async (req, res) => {
+postRouter.post('/addcomment', auth, async (req, res) => {
 
     try {
         const parseResult = commentBody.safeParse(req.body);
