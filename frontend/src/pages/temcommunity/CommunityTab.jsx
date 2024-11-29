@@ -7,35 +7,35 @@ const CommunityTab = () => {
 
   const [questions, setQuestions] = useState([]);
 
-  async function getPost() {
-    try {
-      const response = await axios.get("https://skilllink.onrender.com/api/v1/user/post/all-posts", {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        withCredentials: true,
-      });
+async function getPost() {
+  try {
+    const response = await axios.get("https://skilllink.onrender.com/api/v1/user/post/all-posts", {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true,
+    });
 
-      const posts = response.data.post;
+    const posts = response.data.post;
 
-      // Transform posts into the desired structure
-      const formattedQuestions = posts.map((post) => ({
-        id: post.id.toString(),
-        question: post.desc,
-        answers: post.comment.map((comment) => ({
-          id: `${post.id}`,
-          text: comment.desc,
-          upvotes: 0,
-          downvotes: 0,
-        })),
-      }));
+  
+    const formattedQuestions = posts.map((post) => ({
+      id: post.id.toString(),
+      question: post.desc,
+      answers: (post.comment || []).map((comment) => ({
+        id: `${post.id}`, 
+        text: comment.desc,
+        upvotes: 0,
+        downvotes: 0,
+      })),
+    }));
 
-
-      setQuestions(formattedQuestions);
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-    }
+    setQuestions(formattedQuestions);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
   }
+}
+
 
   const addQuestion = async () => {
     if (newQuestion.trim()) {
