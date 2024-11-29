@@ -121,7 +121,11 @@ postRouter.get('/all-posts', async (req, res) => {
                 id: true,
                 desc: true,
                 like: true,
-                comment: true,
+                comment: {
+                    select: {
+                        desc: true
+                    }
+                },
                 contentType: true,
                 User: {
                     select: {
