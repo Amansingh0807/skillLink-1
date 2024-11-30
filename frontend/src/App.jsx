@@ -6,7 +6,6 @@ import Footer from "./components/footer/Footer";
 import Community from "./pages/community/community";
 import Home from "./pages/home/Home";
 import Gigs from "./pages/gigs/Gigs";
-import Gig from "./pages/gig/Gig";
 import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
 import Add from "./pages/add/Add";
@@ -73,10 +72,7 @@ function App() {
           path: "/add",
           element: <Add />,
         },
-        {
-          path: "/gig/:id",
-          element: <Gig />,
-        },
+
         {
           path: "/register",
           element: <Register />,
