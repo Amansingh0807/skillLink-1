@@ -20,13 +20,17 @@ app.use(express.json())
 app.use(morgan('tiny'))
 app.use(cookieParser())
 app.use('/api/v1', router)
-
 app.use(
     "/api/uploadthing",
     createRouteHandler({
         router: uploadRouter,
     }),
 );
+
+app.get("/ping", (req, res) => {
+    res.send({ message: "Server is alive!" });
+});
+
 
 app.listen(port, () => {
     console.log(`Server is running at port ${port}`);
