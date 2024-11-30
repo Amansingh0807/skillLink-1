@@ -7,49 +7,56 @@ const CommunityTab = () => {
 
   const [questions, setQuestions] = useState([]);
 
-async function getPost() {
-  try {
-    const response = await axios.get("https://skilllink.onrender.com/api/v1/user/post/all-posts", {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      withCredentials: true,
-    });
+  async function getPost() {
+    try {
+      const response = await axios.get("https://skilllink.onrender.com/api/v1/user/post/all-posts", {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
 
-    const posts = response.data.post;
+      const posts = response.data.post;
 
-  
-    const formattedQuestions = posts.map((post) => ({
-      id: post.id.toString(),
-      question: post.desc,
-      answers: (post.comment || []).map((comment) => ({
-        id: `${post.id}`, 
-        text: comment.desc,
-        upvotes: 0,
-        downvotes: 0,
-      })),
-    }));
 
-    setQuestions(formattedQuestions);
-  } catch (error) {
-    console.error("Error fetching posts:", error);
+      const formattedQuestions = posts.map((post) => ({
+        id: post.id.toString(),
+        question: post.desc,
+        answers: (post.comment || []).map((comment) => ({
+          id: `${post.id}`,
+          text: comment.desc,
+          upvotes: 0,
+          downvotes: 0,
+        })),
+      }));
+
+      setQuestions(formattedQuestions);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
   }
-}
 
 
   const addQuestion = async () => {
     if (newQuestion.trim()) {
       try {
-        const response = await axios.post("https://skilllink.onrender.com/api/v1/user/post/add", {
-          desc: newQuestion,
-        }, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          withCredentials: true,
-        });
+        const response = await axios.post(
+          "https://skilllink.onrender.com/api/v1/user/post/add",
+          { desc: newQuestion },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            withCredentials: true,
+          }
+        );
 
-        setQuestions([...questions, response.data]);
+        const newQuestionData = {
+          id: response.data.id.toString(),
+          question: response.data.desc,
+          answers: [],
+        };
+        setQuestions([...questions, newQuestionData]);
         setNewQuestion("");
       } catch (error) {
         console.error("Error adding question:", error);
@@ -57,25 +64,35 @@ async function getPost() {
     }
   };
 
-
   const addAnswer = async (postId, answer) => {
     try {
-      const response = await axios.post(`https://skilllink.onrender.com/api/v1/user/post/addcomment`, {
-        desc: answer.toString(),
-        postId: Number(postId),
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await axios.post(
+        `https://skilllink.onrender.com/api/v1/user/post/addcomment`,
+        {
+          desc: answer,
+          postId: Number(postId),
         },
-        withCredentials: true,
-      });
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+        }
+      );
+
+      const newAnswer = {
+        id: response.data.id.toString(),
+        text: response.data.desc,
+        upvotes: 0,
+        downvotes: 0,
+      };
 
       setQuestions(
         questions.map((q) =>
           q.id === postId
             ? {
               ...q,
-              answers: [...q.answers, response.data],
+              answers: [...q.answers, newAnswer],
             }
             : q
         )
@@ -84,7 +101,6 @@ async function getPost() {
       console.error("Error adding answer:", error);
     }
   };
-
 
   const updateVotes = (questionId, answerId, type) => {
     const voteKey = `${questionId}-${answerId}`;
@@ -124,9 +140,11 @@ async function getPost() {
     navigator.clipboard.writeText(answerText);
     alert("Answer copied to clipboard for sharing!");
   };
+
   useEffect(() => {
     getPost();
   }, []);
+
   return (
 
     <div className="community-tab">
@@ -188,7 +206,7 @@ async function getPost() {
   );
 };
 
-const AnswerList = ({ questionId, answers, addAnswer, updateVotes, shareAnswer }) => {
+const AnswerList = ({ questionId, answers = [], addAnswer, updateVotes, shareAnswer }) => {
   const [newAnswer, setNewAnswer] = useState("");
   const [showAllAnswers, setShowAllAnswers] = useState(false);
 
@@ -240,5 +258,6 @@ const AnswerList = ({ questionId, answers, addAnswer, updateVotes, shareAnswer }
     </div>
   );
 };
+
 
 export default CommunityTab;
